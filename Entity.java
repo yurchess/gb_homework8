@@ -1,10 +1,14 @@
+import java.awt.*;
+
 interface IEntity {
     abstract void move(float dx, float dy);
+    abstract void draw(Graphics g);
 }
 
-public class Entity implements IEntity {
+abstract public class Entity implements IEntity {
     private float x0 = 0;
     private float y0 = 0;
+    private float scale = 1;
 
     Entity(float x, float y) {
         x0 = x;
@@ -15,6 +19,10 @@ public class Entity implements IEntity {
     public void move(float dx, float dy) {
         x0 += dx;
         y0 += dy;
+    }
+
+    private static PointInt getPixelCoordinates(PointF inCoords) {
+        PointInt pixelCoord = new PointInt();
     }
 }
 
@@ -33,6 +41,10 @@ class Line extends Entity {
         super.move(dx, dy);
         x1 += dx;
         y1 += dy;
+    }
+
+    @Override
+    public void draw(Graphics g) {
     }
 }
 
@@ -53,5 +65,47 @@ class Arc extends Circle {
         super(xCenter, yCenter, radius);
         this.angle0 = angle0;
         this.angle1 = angle1;
+    }
+}
+
+class PointF {
+    private float xf;
+    private float yf;
+
+    public void setXf(float xf) {
+        this.xf = xf;
+    }
+
+    public void setYf(float yf) {
+        this.yf = yf;
+    }
+
+    public float getXf() {
+        return xf;
+    }
+
+    public float getYf() {
+        return yf;
+    }
+}
+
+class PointInt {
+    private int x;
+    private int y;
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }
