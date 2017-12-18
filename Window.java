@@ -8,12 +8,16 @@ import java.awt.event.MouseMotionListener;
 import java.io.File;
 
 public class Window extends JFrame {
+    private static Window window;
 
     public static void main(String[] args) {
-        Window window = new Window();
-        window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        window.setLocation(100,200);
-        window.setSize(300,400);
+        window = new Window();
+    }
+
+    Window() {
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setLocation(100,200);
+        setSize(300,400);
 
         JButton button = new JButton("Open image");
         button.addActionListener(new ActionListener() {
@@ -26,9 +30,18 @@ public class Window extends JFrame {
                 }
             }
         });
-        window.getContentPane().add(BorderLayout.NORTH, button);
+        getContentPane().add(button, BorderLayout.NORTH);
 
-        window.setVisible(true);
-        window.repaint();
+        Panel panel = new Panel();
+        getContentPane().add(panel, BorderLayout.CENTER);
+
+        setVisible(true);
+    }
+
+    class Panel extends JPanel {
+        @Override
+        public void paint(Graphics g) {
+            g.drawLine(-10,-300,150,150);
+        }
     }
 }
