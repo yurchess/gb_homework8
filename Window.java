@@ -31,9 +31,4 @@ public class Window extends JFrame {
         window.setVisible(true);
     }
 
-    class Panel extends JPanel {
-        @Override
-        public void paint(Graphics g) {
-            super.paint(g);
-        }
 }
