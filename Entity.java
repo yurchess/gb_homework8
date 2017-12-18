@@ -6,8 +6,8 @@ interface IEntity {
 }
 
 abstract public class Entity implements IEntity {
-    private float x0 = 0;
-    private float y0 = 0;
+    protected float x0 = 0;
+    protected float y0 = 0;
     private float scale = 1;
 
     Entity(float x, float y) {
@@ -21,8 +21,11 @@ abstract public class Entity implements IEntity {
         y0 += dy;
     }
 
-    private static PointInt getPixelCoordinates(PointF inCoords) {
-        PointInt pixelCoord = new PointInt();
+    protected Point<Integer> getPixelCoordinates(Point<Float> inCoords, int height) {
+        Point<Integer> pixelCoord = new Point<Integer>();
+        pixelCoord.setX(Math.round(inCoords.getX() * scale));
+        pixelCoord.setY((height - 1) - Math.round(inCoords.getY() * scale));
+        return pixelCoord;
     }
 }
 
@@ -45,6 +48,12 @@ class Line extends Entity {
 
     @Override
     public void draw(Graphics g) {
+        Point<Float> startPoint = new Point<Float>(x0, y0);
+        Point<Float> endPoint = new Point<Float>(x1, y1);
+        Point<Integer> startPixelPoint = getPixelCoordinates(startPoint, (int) g.getClipBounds().getHeight());
+        Point<Integer> endPixelPoint = getPixelCoordinates(endPoint, (int) g.getClipBounds().getHeight());
+
+        g.drawLine(startPixelPoint.getX(), startPixelPoint.getY(), endPixelPoint.getX(), endPixelPoint.getY());
     }
 }
 
@@ -54,6 +63,11 @@ class Circle extends Entity {
     Circle(float xCenter, float yCenter, float radius) {
         super(xCenter, yCenter);
         this.radius = radius;
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        Graphics2D graphics2D = (Graphics2D) g;
     }
 }
 
@@ -68,44 +82,32 @@ class Arc extends Circle {
     }
 }
 
-class PointF {
-    private float xf;
-    private float yf;
+class Point<T> {
+    private T x;
+    private T y;
 
-    public void setXf(float xf) {
-        this.xf = xf;
+    Point() {
+
     }
 
-    public void setYf(float yf) {
-        this.yf = yf;
-    }
-
-    public float getXf() {
-        return xf;
-    }
-
-    public float getYf() {
-        return yf;
-    }
-}
-
-class PointInt {
-    private int x;
-    private int y;
-
-    public void setX(int x) {
+    Point(T x, T y) {
         this.x = x;
-    }
-
-    public void setY(int y) {
         this.y = y;
     }
 
-    public int getX() {
+    public void setX(T x) {
+        this.x = x;
+    }
+
+    public void setY(T y) {
+        this.y = y;
+    }
+
+    public T getX() {
         return x;
     }
 
-    public int getY() {
+    public T getY() {
         return y;
     }
 }
