@@ -29,6 +29,6 @@ public class Window extends JFrame {
         window.getContentPane().add(BorderLayout.NORTH, button);
 
         window.setVisible(true);
+        window.repaint();
     }
-
 }
