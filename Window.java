@@ -3,13 +3,13 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.ArrayList;
 
 public class Window extends JFrame {
     private static Window window;
-    private ArrayList<Entity> entities = new ArrayList<Entity>();
+    private Entities entities = new Entities();
     private int lastMouseX;
     private int lastMouseY;
+    private Panel panel;
 
     public static void main(String[] args) {
         window = new Window();
@@ -34,7 +34,7 @@ public class Window extends JFrame {
         });
         getContentPane().add(button, BorderLayout.NORTH);
 
-        Panel panel = new Panel();
+        panel = new Panel();
         getContentPane().add(panel, BorderLayout.CENTER);
         panel.addMouseListener(new MouseListener() {
             @Override
@@ -69,10 +69,9 @@ public class Window extends JFrame {
         panel.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent mouseEvent) {
-                float dx = (mouseEvent.getX() - lastMouseX);
-                float dy = (lastMouseY - mouseEvent.getY());
-                for (Entity entity : entities)
-                    entity.move(dx, dy);
+                float dx = (mouseEvent.getX() - lastMouseX) / entities.getScale();
+                float dy = (lastMouseY - mouseEvent.getY()) / entities.getScale();
+                entities.move(dx, dy);
                 lastMouseX = mouseEvent.getX();
                 lastMouseY = mouseEvent.getY();
                 repaint();
@@ -84,18 +83,58 @@ public class Window extends JFrame {
             }
         });
 
+        panel.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
+                float newScale = 1;
+                if (mouseWheelEvent.getUnitsToScroll() < 0) { // Up
+                    newScale = entities.getScale() * 1.1f;
+                    if (newScale > 300) newScale = 300;
+                }
+                else if (mouseWheelEvent.getUnitsToScroll() > 0) // Down
+                    newScale = entities.getScale() * 0.9f;
+
+                float dx = mouseWheelEvent.getX() * (1/newScale - 1/entities.getScale());
+                float dy = (mouseWheelEvent.getY() - panel.getHeight()) * (1/entities.getScale() - 1/newScale);
+                entities.move(dx, dy);
+                entities.setScale(newScale);
+                panel.repaint();
+            }
+        });
+
         setVisible(true);
 
         entities.add(new Line(0,0,100,100));
+        entities.add(new Circle(100,100,50));
+        setEntityToFullPanel();
     }
 
     class Panel extends JPanel {
         @Override
         public void paint(Graphics g) {
+            g.clearRect(0,0, (int) g.getClipBounds().getWidth(), (int) g.getClipBounds().getHeight());
             for (Entity entity : entities) {
                 entity.draw(g);
             }
         }
 
+    }
+
+    private void setEntityToFullPanel() {
+        double newScale = 1;
+        if (entities.getBoundsRect().getWidth() == 0)
+            newScale = panel.getHeight() / entities.getBoundsRect().getHeight();
+        else if (entities.getBoundsRect().getHeight() == 0)
+            newScale = panel.getWidth() / entities.getBoundsRect().getWidth();
+        else {
+            double xScale = panel.getWidth() / entities.getBoundsRect().getWidth();
+            double yScale = panel.getHeight() / entities.getBoundsRect().getHeight();
+            newScale = Math.min(xScale, yScale);
+        }
+        entities.setScale((float) newScale);
+
+        float dx = (float) -entities.getBoundsRect().getX();
+        float dy = (float) -entities.getBoundsRect().getY();
+        entities.move(dx, dy);
     }
 }

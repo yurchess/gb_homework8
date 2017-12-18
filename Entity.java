@@ -1,14 +1,16 @@
 import java.awt.*;
+import java.util.ArrayList;
 
 interface IEntity {
     abstract void move(float dx, float dy);
     abstract void draw(Graphics g);
+    abstract Rectangle getBoundsRect();
 }
 
 abstract public class Entity implements IEntity {
     protected float x0 = 0;
     protected float y0 = 0;
-    private float scale = 1;
+    protected float scale = 1;
 
     Entity(float x, float y) {
         x0 = x;
@@ -26,6 +28,49 @@ abstract public class Entity implements IEntity {
         pixelCoord.setX(Math.round(inCoords.getX() * scale));
         pixelCoord.setY((height - 1) - Math.round(inCoords.getY() * scale));
         return pixelCoord;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
+}
+
+class Entities extends ArrayList<Entity> implements IEntity {
+    private float scale = 1;
+
+    public float getScale() {
+        return scale;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+        for (Entity entity : this)
+            entity.setScale(scale);
+    }
+
+    @Override
+    public void move(float dx, float dy) {
+        for (Entity entity : this) {
+            entity.move(dx, dy);
+        }
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        for (Entity entity : this)
+            entity.draw(g);
+    }
+
+    @Override
+    public Rectangle getBoundsRect() {
+        if (this.get(0) == null)
+            return null;
+        else {
+            Rectangle boundsRect = new Rectangle();
+            for (Entity entity : this)
+                boundsRect = boundsRect.union(entity.getBoundsRect());
+            return boundsRect;
+        }
     }
 }
 
@@ -55,6 +100,18 @@ class Line extends Entity {
 
         g.drawLine(startPixelPoint.getX(), startPixelPoint.getY(), endPixelPoint.getX(), endPixelPoint.getY());
     }
+
+    @Override
+    public Rectangle getBoundsRect() {
+        Rectangle boundsRect = new Rectangle();
+        double x = Math.min(x0, x1);
+        double y = Math.min(y0,y1);
+        double width = Math.abs(x1 - x0);
+        double height = Math.abs(y1 - y0);
+
+        boundsRect.setRect(x, y, width, height);
+        return boundsRect;
+    }
 }
 
 class Circle extends Entity {
@@ -67,18 +124,35 @@ class Circle extends Entity {
 
     @Override
     public void draw(Graphics g) {
-        Graphics2D graphics2D = (Graphics2D) g;
+        Point<Float> centerPoint = new Point<Float>(x0, y0);
+        Point<Integer> centerPointPixel = getPixelCoordinates(centerPoint, (int) g.getClipBounds().getHeight());
+        int i = Math.round(centerPointPixel.getX() - radius * scale);
+        int i1 = Math.round(centerPointPixel.getY() - radius * scale);
+        int i2 = Math.round(2 * radius * scale);
+        int i3 = i2;
+        g.drawArc(i, i1, i2, i3, 0, 360);
+    }
+
+    @Override
+    public Rectangle getBoundsRect() {
+        Rectangle boundsRect = new Rectangle();
+        double x = x0 - radius;
+        double y = y0 - radius;
+        double width = radius * 2;
+        double height = radius * 2;
+        boundsRect.setRect(x, y, width, height);
+        return boundsRect;
     }
 }
 
 class Arc extends Circle {
-    private float angle0;
-    private float angle1;
+    private float startAngle;
+    private float endAngle;
 
-    Arc(float xCenter, float yCenter, float radius, float angle0, float angle1) {
+    Arc(float xCenter, float yCenter, float radius, float startAngle, float endAngle) {
         super(xCenter, yCenter, radius);
-        this.angle0 = angle0;
-        this.angle1 = angle1;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
     }
 }
 
