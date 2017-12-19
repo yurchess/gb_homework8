@@ -59,6 +59,7 @@ class Entities extends ArrayList<Entity> implements IEntity {
     public void draw(Graphics g) {
         for (Entity entity : this)
             entity.draw(g);
+        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     @Override
@@ -99,13 +100,14 @@ class Line extends Entity {
         Point<Integer> endPixelPoint = getPixelCoordinates(endPoint, (int) g.getClipBounds().getHeight());
 
         g.drawLine(startPixelPoint.getX(), startPixelPoint.getY(), endPixelPoint.getX(), endPixelPoint.getY());
+//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     @Override
     public Rectangle getBoundsRect() {
         Rectangle boundsRect = new Rectangle();
         double x = Math.min(x0, x1);
-        double y = Math.min(y0,y1);
+        double y = Math.max(y0,y1);
         double width = Math.abs(x1 - x0);
         double height = Math.abs(y1 - y0);
 
@@ -131,13 +133,14 @@ class Circle extends Entity {
         int i2 = Math.round(2 * radius * scale);
         int i3 = i2;
         g.drawArc(i, i1, i2, i3, 0, 360);
+//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     @Override
     public Rectangle getBoundsRect() {
         Rectangle boundsRect = new Rectangle();
         double x = x0 - radius;
-        double y = y0 - radius;
+        double y = y0 + radius;
         double width = radius * 2;
         double height = radius * 2;
         boundsRect.setRect(x, y, width, height);
@@ -164,9 +167,20 @@ class Arc extends Circle {
         int i2 = Math.round(2 * radius * scale);
         int i3 = i2;
         g.drawArc(i, i1, i2, i3, (int) startAngle, (int) (endAngle - startAngle));
+//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     private boolean isAngleInRange(float angle, float startAngle, float endAngle) {
+        if (endAngle < startAngle)
+            endAngle += 2 * Math.PI;
+
+        if (angle >= startAngle && angle <= endAngle)
+            return true;
+
+        angle += 2 * Math.PI;
+        if (angle >= startAngle && angle <= endAngle)
+            return true;
+
         return false;
     }
 
@@ -176,26 +190,28 @@ class Arc extends Circle {
         float bottom = 0;
         float right = 0;
         float top = 0;
+        float startAngleRad = (float) Math.toRadians(startAngle);
+        float endAngleRad = (float) Math.toRadians(endAngle);
 //        Left
-        if (isAngleInRange((float) Math.PI, startAngle, endAngle))
+        if (isAngleInRange((float) Math.toDegrees(Math.PI) , startAngle, endAngle))
             left = x0 - radius;
         else
-            left = (float) Math.min((x0 + radius*Math.cos(startAngle)), (x0 + radius*Math.cos(endAngle)));
+            left = (float) Math.min((x0 + radius*Math.cos(startAngleRad)), (x0 + radius*Math.cos(endAngleRad)));
 //        Top
-        if (isAngleInRange((float) Math.PI/2, startAngle, endAngle))
+        if (isAngleInRange((float) Math.toDegrees(Math.PI/2), startAngle, endAngle))
             top = y0 + radius;
         else
-            top = (float) Math.max((y0 + radius*Math.sin(startAngle)), (y0 + radius*Math.sin(endAngle)));
+            top = (float) Math.max((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
 //        Right
         if (isAngleInRange(0, startAngle, endAngle))
             right = x0 + radius;
         else
-            right = (float) Math.max((x0 + radius*Math.cos(startAngle)), (x0 + radius*Math.cos(endAngle)));
+            right = (float) Math.max((x0 + radius*Math.cos(startAngleRad)), (x0 + radius*Math.cos(endAngleRad)));
 //        Bottom
-        if (isAngleInRange((float) (3*Math.PI/2), startAngle, endAngle))
+        if (isAngleInRange((float) Math.toDegrees(3*Math.PI/2), startAngle, endAngle))
             bottom = y0 - radius;
         else
-            bottom = (float) Math.min((y0 + radius*Math.sin(startAngle)), (y0 + radius*Math.sin(endAngle)));
+            bottom = (float) Math.min((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
 
         Rectangle boundsRect = new Rectangle();
         boundsRect.setRect(left, top, Math.abs(right - left), Math.abs(top - bottom));

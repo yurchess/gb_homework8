@@ -110,7 +110,7 @@ public class Window extends JFrame {
 
 //        entities.add(new Line(0,0,100,100));
 //        entities.add(new Circle(100,100,48));
-        entities.add(new Arc(50,100,50, 0,180));
+        entities.add(new Arc(0,0,100, 0,180));
         entities.add(new Arc(100,100,50, 0,180));
         setEntityToFullPanel();
     }
@@ -119,11 +119,8 @@ public class Window extends JFrame {
         @Override
         public void paint(Graphics g) {
             g.clearRect(0,0, (int) g.getClipBounds().getWidth(), (int) g.getClipBounds().getHeight());
-            for (Entity entity : entities) {
-                entity.draw(g);
-            }
+            entities.draw(g);
         }
-
     }
 
     private void setEntityToFullPanel() {
@@ -138,7 +135,7 @@ public class Window extends JFrame {
             newScale = 0.99f * Math.min(xScale, yScale);
         }
         float dx = (float) -entities.getBoundsRect().getX();
-        float dy = (float) -entities.getBoundsRect().getY();
+        float dy = (float) - (entities.getBoundsRect().getY() - entities.getBoundsRect().getHeight());
         entities.move(dx, dy);
         entities.setScale((float) newScale);
     }
