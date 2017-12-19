@@ -66,7 +66,7 @@ class Entities extends ArrayList<Entity> implements IEntity {
         if (this.get(0) == null)
             return null;
         else {
-            Rectangle boundsRect = new Rectangle();
+            Rectangle boundsRect = get(0).getBoundsRect();
             for (Entity entity : this)
                 boundsRect = boundsRect.union(entity.getBoundsRect());
             return boundsRect;
@@ -115,7 +115,7 @@ class Line extends Entity {
 }
 
 class Circle extends Entity {
-    private float radius;
+    protected float radius;
 
     Circle(float xCenter, float yCenter, float radius) {
         super(xCenter, yCenter);
@@ -153,6 +153,53 @@ class Arc extends Circle {
         super(xCenter, yCenter, radius);
         this.startAngle = startAngle;
         this.endAngle = endAngle;
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        Point<Float> centerPoint = new Point<Float>(x0, y0);
+        Point<Integer> centerPointPixel = getPixelCoordinates(centerPoint, (int) g.getClipBounds().getHeight());
+        int i = Math.round(centerPointPixel.getX() - radius * scale);
+        int i1 = Math.round(centerPointPixel.getY() - radius * scale);
+        int i2 = Math.round(2 * radius * scale);
+        int i3 = i2;
+        g.drawArc(i, i1, i2, i3, (int) startAngle, (int) (endAngle - startAngle));
+    }
+
+    private boolean isAngleInRange(float angle, float startAngle, float endAngle) {
+        return false;
+    }
+
+    @Override
+    public Rectangle getBoundsRect() {
+        float left = 0;
+        float bottom = 0;
+        float right = 0;
+        float top = 0;
+//        Left
+        if (isAngleInRange((float) Math.PI, startAngle, endAngle))
+            left = x0 - radius;
+        else
+            left = (float) Math.min((x0 + radius*Math.cos(startAngle)), (x0 + radius*Math.cos(endAngle)));
+//        Top
+        if (isAngleInRange((float) Math.PI/2, startAngle, endAngle))
+            top = y0 + radius;
+        else
+            top = (float) Math.max((y0 + radius*Math.sin(startAngle)), (y0 + radius*Math.sin(endAngle)));
+//        Right
+        if (isAngleInRange(0, startAngle, endAngle))
+            right = x0 + radius;
+        else
+            right = (float) Math.max((x0 + radius*Math.cos(startAngle)), (x0 + radius*Math.cos(endAngle)));
+//        Bottom
+        if (isAngleInRange((float) (3*Math.PI/2), startAngle, endAngle))
+            bottom = y0 - radius;
+        else
+            bottom = (float) Math.min((y0 + radius*Math.sin(startAngle)), (y0 + radius*Math.sin(endAngle)));
+
+        Rectangle boundsRect = new Rectangle();
+        boundsRect.setRect(left, top, Math.abs(right - left), Math.abs(top - bottom));
+        return boundsRect;
     }
 }
 

@@ -20,6 +20,9 @@ public class Window extends JFrame {
         setLocation(100,200);
         setSize(300,400);
 
+        JPanel btnPanel = new JPanel();
+        getContentPane().add(btnPanel, BorderLayout.NORTH);
+
         JButton button = new JButton("Open image");
         button.addActionListener(new ActionListener() {
             @Override
@@ -32,7 +35,8 @@ public class Window extends JFrame {
                 repaint();
             }
         });
-        getContentPane().add(button, BorderLayout.NORTH);
+        btnPanel.add(button);
+        addAdjustButton(btnPanel);
 
         panel = new Panel();
         getContentPane().add(panel, BorderLayout.CENTER);
@@ -104,8 +108,10 @@ public class Window extends JFrame {
 
         setVisible(true);
 
-        entities.add(new Line(0,0,100,100));
-        entities.add(new Circle(100,100,50));
+//        entities.add(new Line(0,0,100,100));
+//        entities.add(new Circle(100,100,48));
+        entities.add(new Arc(50,100,50, 0,180));
+        entities.add(new Arc(100,100,50, 0,180));
         setEntityToFullPanel();
     }
 
@@ -129,12 +135,23 @@ public class Window extends JFrame {
         else {
             double xScale = panel.getWidth() / entities.getBoundsRect().getWidth();
             double yScale = panel.getHeight() / entities.getBoundsRect().getHeight();
-            newScale = Math.min(xScale, yScale);
+            newScale = 0.99f * Math.min(xScale, yScale);
         }
-        entities.setScale((float) newScale);
-
         float dx = (float) -entities.getBoundsRect().getX();
         float dy = (float) -entities.getBoundsRect().getY();
         entities.move(dx, dy);
+        entities.setScale((float) newScale);
+    }
+
+    private void addAdjustButton(JComponent component) {
+        JButton button = new JButton("Adjust");
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                setEntityToFullPanel();
+                panel.repaint();
+            }
+        });
+        component.add(button);
     }
 }
