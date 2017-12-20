@@ -3,39 +3,39 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 interface IEntity {
-    abstract void move(float dx, float dy);
+    abstract void move(double dx, double dy);
     abstract void draw(Graphics g);
     abstract WorldBasisBoundsRect getBoundsRect();
 }
 
 abstract public class Entity implements IEntity {
-    float x0 = 0;
-    float y0 = 0;
-    float scale = 1;
+    double x0 = 0;
+    double y0 = 0;
+    double scale = 1;
 
     Entity() {
 
     }
 
-    Entity(float x, float y) {
+    Entity(double x, double y) {
         x0 = x;
         y0 = y;
     }
 
     @Override
-    public void move(float dx, float dy) {
+    public void move(double dx, double dy) {
         x0 += dx;
         y0 += dy;
     }
 
-    Point<Integer> getPixelCoordinates(Point<Float> inCoords, int height) {
+    Point<Integer> getPixelCoordinates(Point<Double> inCoords, int height) {
         Point<Integer> pixelCoord = new Point<Integer>();
-        pixelCoord.setX(Math.round(inCoords.getX() * scale));
-        pixelCoord.setY((height - 1) - Math.round(inCoords.getY() * scale));
+        pixelCoord.setX((int) Math.round(inCoords.getX() * scale));
+        pixelCoord.setY((height - 1) - (int) Math.round(inCoords.getY() * scale));
         return pixelCoord;
     }
 
-    void setScale(float scale) {
+    void setScale(double scale) {
         this.scale = scale;
     }
 }
@@ -47,18 +47,18 @@ class Entities extends Entity {
 
     }
 
-    float getScale() {
+    double getScale() {
         return scale;
     }
 
-    void setScale(float scale) {
+    void setScale(double scale) {
         this.scale = scale;
         for (Entity entity : entities)
             entity.setScale(scale);
     }
 
     @Override
-    public void move(float dx, float dy) {
+    public void move(double dx, double dy) {
         for (Entity entity : entities) {
             entity.move(dx, dy);
         }
@@ -97,17 +97,17 @@ class Entities extends Entity {
 }
 
 class Line extends Entity {
-    private float x1;
-    private float y1;
+    private double x1;
+    private double y1;
 
-    Line(float xStart, float yStart, float xEnd, float yEnd) {
+    Line(double xStart, double yStart, double xEnd, double yEnd) {
         super(xStart, yStart);
         x1 = xEnd;
         y1 = yEnd;
     }
 
     @Override
-    public void move(float dx, float dy) {
+    public void move(double dx, double dy) {
         super.move(dx, dy);
         x1 += dx;
         y1 += dy;
@@ -115,8 +115,8 @@ class Line extends Entity {
 
     @Override
     public void draw(Graphics g) {
-        Point<Float> startPoint = new Point<Float>(x0, y0);
-        Point<Float> endPoint = new Point<Float>(x1, y1);
+        Point<Double> startPoint = new Point<Double>(x0, y0);
+        Point<Double> endPoint = new Point<Double>(x1, y1);
         Point<Integer> startPixelPoint = getPixelCoordinates(startPoint, (int) g.getClipBounds().getHeight());
         Point<Integer> endPixelPoint = getPixelCoordinates(endPoint, (int) g.getClipBounds().getHeight());
 
@@ -136,20 +136,20 @@ class Line extends Entity {
 }
 
 class Circle extends Entity {
-    float radius;
+    double radius;
 
-    Circle(float xCenter, float yCenter, float radius) {
+    Circle(double xCenter, double yCenter, double radius) {
         super(xCenter, yCenter);
         this.radius = radius;
     }
 
     @Override
     public void draw(Graphics g) {
-        Point<Float> centerPoint = new Point<Float>(x0, y0);
+        Point<Double> centerPoint = new Point<Double>(x0, y0);
         Point<Integer> centerPointPixel = getPixelCoordinates(centerPoint, (int) g.getClipBounds().getHeight());
-        int i = Math.round(centerPointPixel.getX() - radius * scale);
-        int i1 = Math.round(centerPointPixel.getY() - radius * scale);
-        int i2 = Math.round(2 * radius * scale);
+        int i = (int) Math.round(centerPointPixel.getX() - radius * scale);
+        int i1 = (int) Math.round(centerPointPixel.getY() - radius * scale);
+        int i2 = (int) Math.round(2 * radius * scale);
         int i3 = i2;
         g.drawArc(i, i1, i2, i3, 0, 360);
 //        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
@@ -167,10 +167,10 @@ class Circle extends Entity {
 }
 
 class Arc extends Circle {
-    private float startAngle;
-    private float endAngle;
+    private double startAngle;
+    private double endAngle;
 
-    Arc(float xCenter, float yCenter, float radius, float startAngle, float endAngle) {
+    Arc(double xCenter, double yCenter, double radius, double startAngle, double endAngle) {
         super(xCenter, yCenter, radius);
         this.startAngle = startAngle;
         this.endAngle = endAngle;
@@ -178,16 +178,16 @@ class Arc extends Circle {
 
     @Override
     public void draw(Graphics g) {
-        Point<Float> centerPoint = new Point<Float>(x0, y0);
+        Point<Double> centerPoint = new Point<Double>(x0, y0);
         Point<Integer> centerPointPixel = getPixelCoordinates(centerPoint, (int) g.getClipBounds().getHeight());
-        int i = Math.round(centerPointPixel.getX() - radius * scale);
-        int i1 = Math.round(centerPointPixel.getY() - radius * scale);
-        int i2 = Math.round(2 * radius * scale);
+        int i = (int) Math.round(centerPointPixel.getX() - radius * scale);
+        int i1 = (int) Math.round(centerPointPixel.getY() - radius * scale);
+        int i2 = (int) Math.round(2 * radius * scale);
         g.drawArc(i, i1, i2, i2, (int) startAngle, (int) (endAngle - startAngle));
 //        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
-    private boolean isAngleInRange(float angle, float startAngle, float endAngle) {
+    private boolean isAngleInRange(double angle, double startAngle, double endAngle) {
         if (endAngle < startAngle) {
             endAngle += 2 * Math.PI;
         }
@@ -206,32 +206,32 @@ class Arc extends Circle {
 
     @Override
     public WorldBasisBoundsRect getBoundsRect() {
-        float left = 0;
-        float bottom = 0;
-        float right = 0;
-        float top = 0;
-        float startAngleRad = (float) Math.toRadians(startAngle);
-        float endAngleRad = (float) Math.toRadians(endAngle);
+        double left = 0;
+        double bottom = 0;
+        double right = 0;
+        double top = 0;
+        double startAngleRad = (double) Math.toRadians(startAngle);
+        double endAngleRad = (double) Math.toRadians(endAngle);
 //        Left
-        if (isAngleInRange((float) Math.toDegrees(Math.PI) , startAngle, endAngle))
+        if (isAngleInRange((double) Math.toDegrees(Math.PI) , startAngle, endAngle))
             left = x0 - radius;
         else
-            left = (float) Math.min((x0 + radius*Math.cos(startAngleRad)), (x0 + radius*Math.cos(endAngleRad)));
+            left = (double) Math.min((x0 + radius*Math.cos(startAngleRad)), (x0 + radius*Math.cos(endAngleRad)));
 //        Top
-        if (isAngleInRange((float) Math.toDegrees(Math.PI/2), startAngle, endAngle))
+        if (isAngleInRange((double) Math.toDegrees(Math.PI/2), startAngle, endAngle))
             top = y0 + radius;
         else
-            top = (float) Math.max((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
+            top = (double) Math.max((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
 //        Right
         if (isAngleInRange(0, startAngle, endAngle))
             right = x0 + radius;
         else
-            right = (float) Math.max((x0 + radius*Math.cos(startAngleRad)), (x0 + radius*Math.cos(endAngleRad)));
+            right = (double) Math.max((x0 + radius*Math.cos(startAngleRad)), (x0 + radius*Math.cos(endAngleRad)));
 //        Bottom
-        if (isAngleInRange((float) Math.toDegrees(3*Math.PI/2), startAngle, endAngle))
+        if (isAngleInRange((double) Math.toDegrees(3*Math.PI/2), startAngle, endAngle))
             bottom = y0 - radius;
         else
-            bottom = (float) Math.min((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
+            bottom = (double) Math.min((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
 
         return new WorldBasisBoundsRect(left, right, top, bottom);
     }
@@ -266,57 +266,57 @@ class Point<T> {
 }
 
 class WorldBasisBoundsRect {
-    private float left;
-    private float right;
-    private float top;
-    private float bottom;
+    private double left;
+    private double right;
+    private double top;
+    private double bottom;
 
     WorldBasisBoundsRect() {}
 
-    WorldBasisBoundsRect(float left, float right, float top, float bottom) {
+    WorldBasisBoundsRect(double left, double right, double top, double bottom) {
         this.left = left;
         this.right = right;
         this.top = top;
         this.bottom = bottom;
     }
 
-    float getLeft() {
+    double getLeft() {
         return left;
     }
 
-    void setLeft(float left) {
+    void setLeft(double left) {
         this.left = left;
     }
 
-    float getRight() {
+    double getRight() {
         return right;
     }
 
-    void setRight(float right) {
+    void setRight(double right) {
         this.right = right;
     }
 
-    float getTop() {
+    double getTop() {
         return top;
     }
 
-    void setTop(float top) {
+    void setTop(double top) {
         this.top = top;
     }
 
-    float getBottom() {
+    double getBottom() {
         return bottom;
     }
 
-    void setBottom(float bottom) {
+    void setBottom(double bottom) {
         this.bottom = bottom;
     }
 
-    float getWidth() {
+    double getWidth() {
         return right - left;
     }
 
-    float getHeight() {
+    double getHeight() {
         return top - bottom;
     }
 

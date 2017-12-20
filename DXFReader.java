@@ -3,7 +3,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class DXFReader {
     private String fileName;
@@ -114,38 +113,38 @@ public class DXFReader {
         return null;
     }
 
-    private float dxfValueToFloat(String value) {
-        return Float.parseFloat(value);
+    private double dxfValueToDouble(String value) {
+        return Double.parseDouble(value);
     }
 
     private Entity getCircleOrArc() {
         boolean isArc = false;
         String sCode = "";
         String sValue = "";
-        float x0 = 0;
-        float y0 = 0;
-        float radius = 0;
-        float angleStart = 0;
-        float angleEnd = 0;
+        double x0 = 0;
+        double y0 = 0;
+        double radius = 0;
+        double angleStart = 0;
+        double angleEnd = 0;
         do {
             sCode = getNextLine();
             sValue = getNextLine();
 
             if (sCode.equals(DXFConstants.CODE_X_START)) {
-                x0 = dxfValueToFloat(sValue);
+                x0 = dxfValueToDouble(sValue);
             }
             if (sCode.equals(DXFConstants.CODE_Y_START)) {
-                y0 = dxfValueToFloat(sValue);
+                y0 = dxfValueToDouble(sValue);
             }
             if (sCode.equals(DXFConstants.CODE_RADIUS)) {
-                radius = dxfValueToFloat(sValue);
+                radius = dxfValueToDouble(sValue);
             }
             if (sCode.equals(DXFConstants.CODE_ANGLE_START)) {
-                angleStart = dxfValueToFloat(sValue);
+                angleStart = dxfValueToDouble(sValue);
                 isArc = true;
             }
             if (sCode.equals(DXFConstants.CODE_ANGLE_END)) {
-                angleEnd = dxfValueToFloat(sValue);
+                angleEnd = dxfValueToDouble(sValue);
                 isArc = true;
             }
         } while (!(sCode.equals("0") || (sCode == null || sValue == null)));
@@ -162,8 +161,8 @@ public class DXFReader {
         String sValue = "";
         int verticiesCount = 0;
         boolean isPolylineClosed = false;
-        ArrayList<Float> xCoords = new ArrayList<Float>();
-        ArrayList<Float> yCoords = new ArrayList<Float>();
+        ArrayList<Double> xCoords = new ArrayList<Double>();
+        ArrayList<Double> yCoords = new ArrayList<Double>();
 
         do {
             sCode = getNextLine();
@@ -184,10 +183,10 @@ public class DXFReader {
             }
 
             if (sCode.equals(DXFConstants.CODE_X_START)) {
-                xCoords.add(Float.parseFloat(sValue));
+                xCoords.add(Double.parseDouble(sValue));
             }
             if (sCode.equals(DXFConstants.CODE_Y_START)) {
-                yCoords.add(Float.parseFloat(sValue));
+                yCoords.add(Double.parseDouble(sValue));
             }
         } while (!sCode.equals("0"));
 
@@ -208,10 +207,10 @@ public class DXFReader {
     private Entity getLine() {
         String sCode = "";
         String sValue = "";
-        float x0 = 0;
-        float y0 = 0;
-        float x1 = 0;
-        float y1 = 0;
+        double x0 = 0;
+        double y0 = 0;
+        double x1 = 0;
+        double y1 = 0;
 
         do {
             sCode = getNextLine();
@@ -221,16 +220,16 @@ public class DXFReader {
             }
 
             if (sCode.equals(DXFConstants.CODE_X_START)) {
-                x0 = Float.parseFloat(sValue);
+                x0 = Double.parseDouble(sValue);
             }
             if (sCode.equals(DXFConstants.CODE_Y_START)) {
-                y0 = Float.parseFloat(sValue);
+                y0 = Double.parseDouble(sValue);
             }
             if (sCode.equals(DXFConstants.CODE_X_END)) {
-                x1 = Float.parseFloat(sValue);
+                x1 = Double.parseDouble(sValue);
             }
             if (sCode.equals(DXFConstants.CODE_Y_END)) {
-                y1 = Float.parseFloat(sValue);
+                y1 = Double.parseDouble(sValue);
             }
         } while (!sCode.equals("0"));
 
