@@ -4,7 +4,7 @@ import java.util.ArrayList;
 interface IEntity {
     abstract void move(float dx, float dy);
     abstract void draw(Graphics g);
-    abstract Rectangle getBoundsRect();
+    abstract WorldBasisBoundsRect getBoundsRect();
 }
 
 abstract public class Entity implements IEntity {
@@ -59,15 +59,15 @@ class Entities extends ArrayList<Entity> implements IEntity {
     public void draw(Graphics g) {
         for (Entity entity : this)
             entity.draw(g);
-        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
+//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     @Override
-    public Rectangle getBoundsRect() {
+    public WorldBasisBoundsRect getBoundsRect() {
         if (this.get(0) == null)
             return null;
         else {
-            Rectangle boundsRect = get(0).getBoundsRect();
+            WorldBasisBoundsRect boundsRect = get(0).getBoundsRect();
             for (Entity entity : this)
                 boundsRect = boundsRect.union(entity.getBoundsRect());
             return boundsRect;
@@ -104,14 +104,12 @@ class Line extends Entity {
     }
 
     @Override
-    public Rectangle getBoundsRect() {
-        Rectangle boundsRect = new Rectangle();
-        double x = Math.min(x0, x1);
-        double y = Math.max(y0,y1);
-        double width = Math.abs(x1 - x0);
-        double height = Math.abs(y1 - y0);
-
-        boundsRect.setRect(x, y, width, height);
+    public WorldBasisBoundsRect getBoundsRect() {
+        WorldBasisBoundsRect boundsRect = new WorldBasisBoundsRect();
+        boundsRect.setLeft(Math.min(x0, x1));
+        boundsRect.setRight(Math.max(x0, x1));
+        boundsRect.setTop(Math.max(y0,y1));
+        boundsRect.setBottom(Math.min(y0,y1));
         return boundsRect;
     }
 }
@@ -137,13 +135,12 @@ class Circle extends Entity {
     }
 
     @Override
-    public Rectangle getBoundsRect() {
-        Rectangle boundsRect = new Rectangle();
-        double x = x0 - radius;
-        double y = y0 + radius;
-        double width = radius * 2;
-        double height = radius * 2;
-        boundsRect.setRect(x, y, width, height);
+    public WorldBasisBoundsRect getBoundsRect() {
+        WorldBasisBoundsRect boundsRect = new WorldBasisBoundsRect();
+        boundsRect.setLeft(x0 - radius);
+        boundsRect.setRight(x0 + radius);
+        boundsRect.setTop(y0 + radius);
+        boundsRect.setBottom(y0 - radius);
         return boundsRect;
     }
 }
@@ -185,7 +182,7 @@ class Arc extends Circle {
     }
 
     @Override
-    public Rectangle getBoundsRect() {
+    public WorldBasisBoundsRect getBoundsRect() {
         float left = 0;
         float bottom = 0;
         float right = 0;
@@ -212,10 +209,8 @@ class Arc extends Circle {
             bottom = y0 - radius;
         else
             bottom = (float) Math.min((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
-
-        Rectangle boundsRect = new Rectangle();
-        boundsRect.setRect(left, top, Math.abs(right - left), Math.abs(top - bottom));
-        return boundsRect;
+        
+        return new WorldBasisBoundsRect(left, right, top, bottom);
     }
 }
 
@@ -246,5 +241,70 @@ class Point<T> {
 
     public T getY() {
         return y;
+    }
+}
+
+class WorldBasisBoundsRect {
+    private float left;
+    private float right;
+    private float top;
+    private float bottom;
+
+    WorldBasisBoundsRect() {}
+
+    WorldBasisBoundsRect(float left, float right, float top, float bottom) {
+        this.left = left;
+        this.right = right;
+        this.top = top;
+        this.bottom = bottom;
+    }
+
+    public float getLeft() {
+        return left;
+    }
+
+    public void setLeft(float left) {
+        this.left = left;
+    }
+
+    public float getRight() {
+        return right;
+    }
+
+    public void setRight(float right) {
+        this.right = right;
+    }
+
+    public float getTop() {
+        return top;
+    }
+
+    public void setTop(float top) {
+        this.top = top;
+    }
+
+    public float getBottom() {
+        return bottom;
+    }
+
+    public void setBottom(float bottom) {
+        this.bottom = bottom;
+    }
+
+    public float getWidth() {
+        return right - left;
+    }
+
+    public float getHeight() {
+        return top - bottom;
+    }
+
+    public WorldBasisBoundsRect union(WorldBasisBoundsRect rect) {
+        WorldBasisBoundsRect newRect = new WorldBasisBoundsRect();
+        newRect.setLeft(Math.min(left, rect.getLeft()));
+        newRect.setRight(Math.max(right, rect.getRight()));
+        newRect.setTop(Math.max(top, rect.getTop()));
+        newRect.setBottom(Math.min(bottom, rect.getBottom()));
+        return newRect;
     }
 }

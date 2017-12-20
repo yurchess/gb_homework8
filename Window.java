@@ -108,8 +108,8 @@ public class Window extends JFrame {
 
         setVisible(true);
 
-//        entities.add(new Line(0,0,100,100));
-//        entities.add(new Circle(100,100,48));
+        entities.add(new Line(0,0,100,100));
+        entities.add(new Circle(100,100,48));
         entities.add(new Arc(0,0,100, 0,180));
         entities.add(new Arc(100,100,50, 0,180));
         setEntityToFullPanel();
@@ -134,8 +134,8 @@ public class Window extends JFrame {
             double yScale = panel.getHeight() / entities.getBoundsRect().getHeight();
             newScale = 0.99f * Math.min(xScale, yScale);
         }
-        float dx = (float) -entities.getBoundsRect().getX();
-        float dy = (float) - (entities.getBoundsRect().getY() - entities.getBoundsRect().getHeight());
+        float dx = - entities.getBoundsRect().getLeft();
+        float dy = - entities.getBoundsRect().getBottom();
         entities.move(dx, dy);
         entities.setScale((float) newScale);
     }
