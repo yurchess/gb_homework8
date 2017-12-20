@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 interface IEntity {
     abstract void move(float dx, float dy);
@@ -11,6 +12,10 @@ abstract public class Entity implements IEntity {
     float x0 = 0;
     float y0 = 0;
     float scale = 1;
+
+    Entity() {
+
+    }
 
     Entity(float x, float y) {
         x0 = x;
@@ -35,8 +40,12 @@ abstract public class Entity implements IEntity {
     }
 }
 
-class Entities extends ArrayList<Entity> implements IEntity {
-    private float scale = 1;
+class Entities extends Entity {
+    ArrayList<Entity> entities = new ArrayList<>();
+
+    Entities() {
+
+    }
 
     float getScale() {
         return scale;
@@ -44,20 +53,20 @@ class Entities extends ArrayList<Entity> implements IEntity {
 
     void setScale(float scale) {
         this.scale = scale;
-        for (Entity entity : this)
+        for (Entity entity : entities)
             entity.setScale(scale);
     }
 
     @Override
     public void move(float dx, float dy) {
-        for (Entity entity : this) {
+        for (Entity entity : entities) {
             entity.move(dx, dy);
         }
     }
 
     @Override
     public void draw(Graphics g) {
-        for (Entity entity : this)
+        for (Entity entity : entities)
             entity.draw(g);
 //        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
@@ -68,10 +77,22 @@ class Entities extends ArrayList<Entity> implements IEntity {
             return null;
         else {
             WorldBasisBoundsRect boundsRect = get(0).getBoundsRect();
-            for (Entity entity : this)
+            for (Entity entity : entities)
                 boundsRect = boundsRect.union(entity.getBoundsRect());
             return boundsRect;
         }
+    }
+
+    public int getSize() {
+        return entities.size();
+    }
+
+    public void add(Entity entity) {
+        entities.add(entity);
+    }
+
+    public Entity get(int index) {
+        return entities.get(index);
     }
 }
 
@@ -211,7 +232,7 @@ class Arc extends Circle {
             bottom = y0 - radius;
         else
             bottom = (float) Math.min((y0 + radius*Math.sin(startAngleRad)), (y0 + radius*Math.sin(endAngleRad)));
-        
+
         return new WorldBasisBoundsRect(left, right, top, bottom);
     }
 }

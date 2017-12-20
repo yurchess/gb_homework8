@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DXFReader {
@@ -157,23 +158,83 @@ public class DXFReader {
     }
 
     private Entity getLWPolyline() {
-//        String sCode = "";
-//        String sValue = "";
-//
-//        do {
-//            sCode = getNextLine();
-//            sValue = getNextLine();
-//            if (sCode == null || sValue == null) {
-//                break;
-//            }
-//            if (sCode)
-//        } while (!sCode.equals("0"))
-//
-        return null;
+        String sCode = "";
+        String sValue = "";
+        int verticiesCount = 0;
+        boolean isPolylineClosed = false;
+        ArrayList<Float> xCoords = new ArrayList<Float>();
+        ArrayList<Float> yCoords = new ArrayList<Float>();
+
+        do {
+            sCode = getNextLine();
+            sValue = getNextLine();
+            if (sCode == null || sValue == null) {
+                break;
+            }
+            if (sCode.equals(DXFConstants.CODE_NUMBER_OF_VERTICES)) {
+                verticiesCount = Integer.parseInt(sValue);
+            }
+            if (sCode.equals(DXFConstants.CODE_POLYLINE_FLAG)) {
+                if (sValue.equals(DXFConstants.VALUE_POLYLINE_CLOSED)) {
+                    isPolylineClosed = true;
+                }
+                else {
+                    isPolylineClosed = false;
+                }
+            }
+
+            if (sCode.equals(DXFConstants.CODE_X_START)) {
+                xCoords.add(Float.parseFloat(sValue));
+            }
+            if (sCode.equals(DXFConstants.CODE_Y_START)) {
+                yCoords.add(Float.parseFloat(sValue));
+            }
+        } while (!sCode.equals("0"));
+
+        assert xCoords.size() == yCoords.size() && xCoords.size() == verticiesCount;
+
+        Entities entities = new Entities();
+        for (int i = 0; i < verticiesCount - 1; i++) {
+            entities.add(new Line(xCoords.get(i), yCoords.get(i),xCoords.get(i+1), yCoords.get(i+1)));
+        }
+
+        if (isPolylineClosed) {
+            entities.add(new Line(xCoords.get(xCoords.size()-1), yCoords.get(yCoords.size()-1),xCoords.get(0), yCoords.get(0)));
+        }
+
+        return entities;
     }
 
     private Entity getLine() {
-        return null;
+        String sCode = "";
+        String sValue = "";
+        float x0 = 0;
+        float y0 = 0;
+        float x1 = 0;
+        float y1 = 0;
+
+        do {
+            sCode = getNextLine();
+            sValue = getNextLine();
+            if (sCode == null || sValue == null) {
+                break;
+            }
+
+            if (sCode.equals(DXFConstants.CODE_X_START)) {
+                x0 = Float.parseFloat(sValue);
+            }
+            if (sCode.equals(DXFConstants.CODE_Y_START)) {
+                y0 = Float.parseFloat(sValue);
+            }
+            if (sCode.equals(DXFConstants.CODE_X_END)) {
+                x1 = Float.parseFloat(sValue);
+            }
+            if (sCode.equals(DXFConstants.CODE_Y_END)) {
+                y1 = Float.parseFloat(sValue);
+            }
+        } while (!sCode.equals("0"));
+
+        return new Line(x0, y0, x1, y1);
     }
 }
 

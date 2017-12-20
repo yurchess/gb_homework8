@@ -33,7 +33,7 @@ public class Window extends JFrame {
                     File file = fileChooser.getSelectedFile();
                     DXFReader dxfReader = new DXFReader(file.getAbsolutePath());
                     entities = dxfReader.getEntities();
-                    if (entities.size() > 0) {
+                    if (entities.getSize() > 0) {
                         setEntityToFullPanel();
                     }
                     repaint();
