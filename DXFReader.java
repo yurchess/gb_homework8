@@ -1,0 +1,214 @@
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+public class DXFReader {
+    private String fileName;
+    private BufferedReader br;
+
+    DXFReader(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public Entities getEntities() {
+        Entities entities = new Entities();
+        try {
+            FileInputStream fstream = new FileInputStream(fileName);
+            br = new BufferedReader(new InputStreamReader(fstream));
+
+            String sCode = "";
+            String sValue = "";
+
+            while (true) {
+                if (goToNextSection()) {
+                    if (goToNextEntitySection()) {
+                        while (!sValue.equals("ENDSEC")) {
+                            sCode = getNextLine();
+                            sValue = getNextLine();
+                            if (sCode == null || sValue == null) {
+                                break;
+                            }
+
+                            if (sCode.equals(DXFConstants.CODE_ENTITY)) {
+                                Entity entity = getEntity(sValue);
+                                if (entity != null) {
+                                    entities.add(entity);
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return entities;
+    }
+
+    private String getNextLine() {
+        try {
+            String line = br.readLine();
+            if (line == null) {
+                return null;
+            }
+            return line = line.trim();
+        }
+        catch (IOException e) {
+            return null;
+        }
+    }
+
+    private boolean goToNextSection() {
+        String sCode = "";
+        String sValue = "";
+
+        while (!sValue.equals("ENDSEC")) {
+            sCode = getNextLine();
+            sValue = getNextLine();
+            if (sCode == null || sValue == null) {
+                break;
+            }
+
+            if (sCode.equals("0") && sValue.equals("SECTION")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean goToNextEntitySection() {
+        String sCode = "";
+        String sValue = "";
+
+        while (!sValue.equals("ENDSEC")) {
+            sCode = getNextLine();
+            sValue = getNextLine();
+            if (sCode == null || sValue == null) {
+                break;
+            }
+
+            if (sCode.equals("2") && sValue.equals("ENTITIES")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Entity getEntity(String entityName) {
+        if (entityName.equals(DXFConstants.VALUE_CIRCLE)) {
+            return getCircleOrArc();
+        }
+        if (entityName.equals(DXFConstants.VALUE_LWPOLYLINE)) {
+            return getLWPolyline();
+        }
+        if (entityName.equals(DXFConstants.VALUE_LINE)) {
+            return getLine();
+        }
+        return null;
+    }
+
+    private float dxfValueToFloat(String value) {
+        return Float.parseFloat(value);
+    }
+
+    private Entity getCircleOrArc() {
+        boolean isArc = false;
+        String sCode = "";
+        String sValue = "";
+        float x0 = 0;
+        float y0 = 0;
+        float radius = 0;
+        float angleStart = 0;
+        float angleEnd = 0;
+        do {
+            sCode = getNextLine();
+            sValue = getNextLine();
+
+            if (sCode.equals(DXFConstants.CODE_X_START)) {
+                x0 = dxfValueToFloat(sValue);
+            }
+            if (sCode.equals(DXFConstants.CODE_Y_START)) {
+                y0 = dxfValueToFloat(sValue);
+            }
+            if (sCode.equals(DXFConstants.CODE_RADIUS)) {
+                radius = dxfValueToFloat(sValue);
+            }
+            if (sCode.equals(DXFConstants.CODE_ANGLE_START)) {
+                angleStart = dxfValueToFloat(sValue);
+                isArc = true;
+            }
+            if (sCode.equals(DXFConstants.CODE_ANGLE_END)) {
+                angleEnd = dxfValueToFloat(sValue);
+                isArc = true;
+            }
+        } while (!(sCode.equals("0") || (sCode == null || sValue == null)));
+        if (isArc) {
+            return new Arc(x0, y0, radius, angleStart, angleEnd);
+        }
+        else {
+            return new Circle(x0, y0, radius);
+        }
+    }
+
+    private Entity getLWPolyline() {
+//        String sCode = "";
+//        String sValue = "";
+//
+//        do {
+//            sCode = getNextLine();
+//            sValue = getNextLine();
+//            if (sCode == null || sValue == null) {
+//                break;
+//            }
+//            if (sCode)
+//        } while (!sCode.equals("0"))
+//
+        return null;
+    }
+
+    private Entity getLine() {
+        return null;
+    }
+}
+
+class DXFConstants {
+    //Group codes
+    public static final String CODE_ENTITY = "100";
+    public static final String CODE_LAYER = "8";
+    public static final String CODE_X_START = "10";
+    public static final String CODE_Y_START = "20";
+    public static final String CODE_X_END = "11";
+    public static final String CODE_Y_END = "21";
+    public static final String CODE_RADIUS = "40";
+    public static final String CODE_BULGE = "42";
+    public static final String CODE_ANGLE_START = "50";
+    public static final String CODE_ANGLE_END = "51";
+
+    public static final String CODE_NUMBER_OF_VERTICES = "90";
+    public static final String CODE_POLYLINE_FLAG = "70";
+
+    public static final String CODE_SPLINE_FLAG = "70";
+    public static final String CODE_SPLINE_CURVE_DEGREE = "71";
+    public static final String CODE_KNOTS_COUNT = "72";
+    public static final String CODE_CONTROL_POINTS_COUNT = "73";
+    public static final String CODE_FIT_POINTS_COUNT = "74";
+    public static final String CODE_KNOT_TOLERANCE = "42";
+    public static final String CODE_CONTROL_POINT_TOLERANCE = "43";
+    public static final String CODE_FIT_TOLERANCE = "44";
+    public static final String CODE_KNOT_VALUE = "40";
+
+    //Values
+    public static final String VALUE_ENTITY = "AcDbEntity";
+    public static final String VALUE_CIRCLE = "AcDbCircle";
+    public static final String VALUE_LINE = "AcDbLine";
+    public static final String VALUE_LWPOLYLINE = "AcDbPolyline";
+    public static final String VALUE_SPLINE = "AcDbSpline";
+    public static final String VALUE_POLYLINE_CLOSED = "1";
+    public static final String VALUE_POLYLINE_PLINEGEN = "128";
+}

@@ -8,9 +8,9 @@ interface IEntity {
 }
 
 abstract public class Entity implements IEntity {
-    protected float x0 = 0;
-    protected float y0 = 0;
-    protected float scale = 1;
+    float x0 = 0;
+    float y0 = 0;
+    float scale = 1;
 
     Entity(float x, float y) {
         x0 = x;
@@ -23,14 +23,14 @@ abstract public class Entity implements IEntity {
         y0 += dy;
     }
 
-    protected Point<Integer> getPixelCoordinates(Point<Float> inCoords, int height) {
+    Point<Integer> getPixelCoordinates(Point<Float> inCoords, int height) {
         Point<Integer> pixelCoord = new Point<Integer>();
         pixelCoord.setX(Math.round(inCoords.getX() * scale));
         pixelCoord.setY((height - 1) - Math.round(inCoords.getY() * scale));
         return pixelCoord;
     }
 
-    public void setScale(float scale) {
+    void setScale(float scale) {
         this.scale = scale;
     }
 }
@@ -38,11 +38,11 @@ abstract public class Entity implements IEntity {
 class Entities extends ArrayList<Entity> implements IEntity {
     private float scale = 1;
 
-    public float getScale() {
+    float getScale() {
         return scale;
     }
 
-    public void setScale(float scale) {
+    void setScale(float scale) {
         this.scale = scale;
         for (Entity entity : this)
             entity.setScale(scale);
@@ -115,7 +115,7 @@ class Line extends Entity {
 }
 
 class Circle extends Entity {
-    protected float radius;
+    float radius;
 
     Circle(float xCenter, float yCenter, float radius) {
         super(xCenter, yCenter);
@@ -162,21 +162,23 @@ class Arc extends Circle {
         int i = Math.round(centerPointPixel.getX() - radius * scale);
         int i1 = Math.round(centerPointPixel.getY() - radius * scale);
         int i2 = Math.round(2 * radius * scale);
-        int i3 = i2;
-        g.drawArc(i, i1, i2, i3, (int) startAngle, (int) (endAngle - startAngle));
+        g.drawArc(i, i1, i2, i2, (int) startAngle, (int) (endAngle - startAngle));
 //        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     private boolean isAngleInRange(float angle, float startAngle, float endAngle) {
-        if (endAngle < startAngle)
+        if (endAngle < startAngle) {
             endAngle += 2 * Math.PI;
+        }
 
-        if (angle >= startAngle && angle <= endAngle)
+        if (angle >= startAngle && angle <= endAngle) {
             return true;
+        }
 
         angle += 2 * Math.PI;
-        if (angle >= startAngle && angle <= endAngle)
+        if (angle >= startAngle && angle <= endAngle) {
             return true;
+        }
 
         return false;
     }
@@ -218,28 +220,26 @@ class Point<T> {
     private T x;
     private T y;
 
-    Point() {
-
-    }
+    Point() {}
 
     Point(T x, T y) {
         this.x = x;
         this.y = y;
     }
 
-    public void setX(T x) {
+    void setX(T x) {
         this.x = x;
     }
 
-    public void setY(T y) {
+    void setY(T y) {
         this.y = y;
     }
 
-    public T getX() {
+    T getX() {
         return x;
     }
 
-    public T getY() {
+    T getY() {
         return y;
     }
 }
@@ -259,47 +259,47 @@ class WorldBasisBoundsRect {
         this.bottom = bottom;
     }
 
-    public float getLeft() {
+    float getLeft() {
         return left;
     }
 
-    public void setLeft(float left) {
+    void setLeft(float left) {
         this.left = left;
     }
 
-    public float getRight() {
+    float getRight() {
         return right;
     }
 
-    public void setRight(float right) {
+    void setRight(float right) {
         this.right = right;
     }
 
-    public float getTop() {
+    float getTop() {
         return top;
     }
 
-    public void setTop(float top) {
+    void setTop(float top) {
         this.top = top;
     }
 
-    public float getBottom() {
+    float getBottom() {
         return bottom;
     }
 
-    public void setBottom(float bottom) {
+    void setBottom(float bottom) {
         this.bottom = bottom;
     }
 
-    public float getWidth() {
+    float getWidth() {
         return right - left;
     }
 
-    public float getHeight() {
+    float getHeight() {
         return top - bottom;
     }
 
-    public WorldBasisBoundsRect union(WorldBasisBoundsRect rect) {
+    WorldBasisBoundsRect union(WorldBasisBoundsRect rect) {
         WorldBasisBoundsRect newRect = new WorldBasisBoundsRect();
         newRect.setLeft(Math.min(left, rect.getLeft()));
         newRect.setRight(Math.max(right, rect.getRight()));
