@@ -51,6 +51,7 @@ class Entities extends Entity {
         return scale;
     }
 
+    @Override
     void setScale(double scale) {
         this.scale = scale;
         for (Entity entity : entities)
@@ -68,7 +69,6 @@ class Entities extends Entity {
     public void draw(Graphics g) {
         for (Entity entity : entities)
             entity.draw(g);
-//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     @Override
@@ -121,7 +121,6 @@ class Line extends Entity {
         Point<Integer> endPixelPoint = getPixelCoordinates(endPoint, (int) g.getClipBounds().getHeight());
 
         g.drawLine(startPixelPoint.getX(), startPixelPoint.getY(), endPixelPoint.getX(), endPixelPoint.getY());
-//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     @Override
@@ -152,7 +151,6 @@ class Circle extends Entity {
         int i2 = (int) Math.round(2 * radius * scale);
         int i3 = i2;
         g.drawArc(i, i1, i2, i3, 0, 360);
-//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
     }
 
     @Override
@@ -183,8 +181,11 @@ class Arc extends Circle {
         int i = (int) Math.round(centerPointPixel.getX() - radius * scale);
         int i1 = (int) Math.round(centerPointPixel.getY() - radius * scale);
         int i2 = (int) Math.round(2 * radius * scale);
-        g.drawArc(i, i1, i2, i2, (int) startAngle, (int) (endAngle - startAngle));
-//        g.drawRect((int) (getBoundsRect().getX() * scale), (int) (g.getClipBounds().getHeight() - getBoundsRect().getY() * scale), (int) (getBoundsRect().getWidth() * scale), (int) (getBoundsRect().getHeight() * scale));
+        double endAngleN = endAngle;
+        if (endAngleN < startAngle) {
+            endAngleN += 360;
+        }
+        g.drawArc(i, i1, i2, i2, (int) startAngle, (int) (endAngleN - startAngle));
     }
 
     private boolean isAngleInRange(double angle, double startAngle, double endAngle) {
@@ -197,11 +198,7 @@ class Arc extends Circle {
         }
 
         angle += 2 * Math.PI;
-        if (angle >= startAngle && angle <= endAngle) {
-            return true;
-        }
-
-        return false;
+        return angle >= startAngle && angle <= endAngle;
     }
 
     @Override

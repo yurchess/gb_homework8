@@ -129,6 +129,9 @@ public class DXFReader {
         do {
             sCode = getNextLine();
             sValue = getNextLine();
+            if (sCode == null || sValue == null) {
+                break;
+            }
 
             if (sCode.equals(DXFConstants.CODE_X_START)) {
                 x0 = dxfValueToDouble(sValue);
@@ -147,7 +150,7 @@ public class DXFReader {
                 angleEnd = dxfValueToDouble(sValue);
                 isArc = true;
             }
-        } while (!(sCode.equals("0") || (sCode == null || sValue == null)));
+        } while (!(sCode.equals("0")));
         if (isArc) {
             return new Arc(x0, y0, radius, angleStart, angleEnd);
         }
@@ -174,12 +177,7 @@ public class DXFReader {
                 verticiesCount = Integer.parseInt(sValue);
             }
             if (sCode.equals(DXFConstants.CODE_POLYLINE_FLAG)) {
-                if (sValue.equals(DXFConstants.VALUE_POLYLINE_CLOSED)) {
-                    isPolylineClosed = true;
-                }
-                else {
-                    isPolylineClosed = false;
-                }
+                isPolylineClosed = sValue.equals(DXFConstants.VALUE_POLYLINE_CLOSED);
             }
 
             if (sCode.equals(DXFConstants.CODE_X_START)) {

@@ -24,7 +24,7 @@ public class Window extends JFrame {
         window = new Window();
     }
 
-    Window() {
+    private Window() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle(WINDOW_TITLE);
         setWindowInitialSizeAndLoc();
@@ -37,6 +37,7 @@ public class Window extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
                 fileChooser.setAcceptAllFileFilterUsed(false);
                 fileChooser.setFileFilter(new FileFilter() {
                     @Override
