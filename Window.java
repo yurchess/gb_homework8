@@ -5,6 +5,8 @@
  * @link https://github.com/yurchess/gb_homework8
  */
 
+import GraphicEntity.*;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;

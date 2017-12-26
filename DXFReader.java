@@ -1,8 +1,8 @@
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import GraphicEntity.*;
+
+import java.io.*;
 import java.util.ArrayList;
+import GraphicEntity.*;
 
 public class DXFReader {
     private String fileName;
